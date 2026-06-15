@@ -4,9 +4,9 @@ After=network.target
 
 [Service]
 Type=simple
-User=ubuntu
-WorkingDirectory=/home/ubuntu/deep_talk
-ExecStart=/home/ubuntu/deep_talk/venv/bin/python main.py
+User=deploy
+WorkingDirectory=/home/deploy/deep_talk
+ExecStart=/home/deploy/deep_talk/venv/bin/python main.py
 Restart=always
 RestartSec=10
 StandardOutput=journal
