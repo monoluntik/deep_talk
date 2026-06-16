@@ -1,10 +1,7 @@
-from __future__ import annotations
-
 import json
 import re
 from openai import AsyncOpenAI
 from bot.config import OPENROUTER_API_KEY
-from bot.i18n import t
 
 _client = AsyncOpenAI(
     api_key=OPENROUTER_API_KEY,
@@ -14,22 +11,29 @@ _client = AsyncOpenAI(
 _MODEL = "openrouter/free"
 
 
-async def generate_category(
-    description: str, count: int = 20, lang: str = "ru"
-) -> tuple[str, list[str]]:
-    """Ask AI to invent a category name and questions based on user description."""
-    prompt = t(lang, "ai_prompt", description=description, count=count)
-
+async def generate_category(description: str, count: int = 20) -> tuple[str, list[str]]:
     response = await _client.chat.completions.create(
         model=_MODEL,
         max_tokens=8192,
-        messages=[{"role": "user", "content": prompt}],
+        messages=[{
+            "role": "user",
+            "content": (
+                f"Пользователь хочет категорию вопросов: «{description}»\n\n"
+                f"Сгенерируй:\n"
+                f"1. Короткое название категории (2-4 слова, добавь подходящий эмодзи в начало)\n"
+                f"2. {count} уникальных вопросов для устного обсуждения\n"
+                "   - Разнообразные: лёгкие, глубокие, философские, игривые\n"
+                "   - Без повторений\n\n"
+                "Верни ТОЛЬКО JSON без пояснений:\n"
+                '{"name": "🎬 Название", "questions": ["Вопрос 1?", "Вопрос 2?", ...]}'
+            ),
+        }],
     )
 
     text = response.choices[0].message.content.strip()
     match = re.search(r"\{[\s\S]*\}", text)
     if not match:
-        raise ValueError("Model did not return valid JSON" if lang == "en" else "Модель не вернула корректный JSON")
+        raise ValueError("Модель не вернула корректный JSON")
 
     data = json.loads(match.group())
     name: str = data["name"].strip()
@@ -37,6 +41,6 @@ async def generate_category(
         q.strip() for q in data["questions"] if isinstance(q, str) and q.strip()
     ]
     if not name or not questions:
-        raise ValueError("Model returned empty data" if lang == "en" else "Модель вернула пустые данные")
+        raise ValueError("Модель вернула пустые данные")
 
     return name, questions

@@ -1,6 +1,6 @@
 from bot.db import queries
 
-THIS_OR_THAT_RU = [
+THIS_OR_THAT = [
     "Море или горы?",
     "Лето или зима?",
     "Кошки или собаки?",
@@ -33,7 +33,7 @@ THIS_OR_THAT_RU = [
     "Спонтанность или всё по плану?",
 ]
 
-KNOW_ME_BETTER_RU = [
+KNOW_ME_BETTER = [
     "О чём ты мечтал в детстве? Сбылось ли это?",
     "Какой момент в жизни ты считаешь самым счастливым?",
     "Что делает тебя по-настоящему счастливым прямо сейчас?",
@@ -66,82 +66,14 @@ KNOW_ME_BETTER_RU = [
     "Что бы ты хотел, чтобы люди говорили о тебе через 20 лет?",
 ]
 
-THIS_OR_THAT_EN = [
-    "Sea or mountains?",
-    "Summer or winter?",
-    "Cats or dogs?",
-    "Morning or evening?",
-    "Book or movie?",
-    "Travel or stay home?",
-    "Loud party or quiet night in?",
-    "Coffee or tea?",
-    "Big city or small town?",
-    "Pizza or sushi?",
-    "Past or future?",
-    "Live somewhere warm or somewhere cold?",
-    "Many friends or one true one?",
-    "Early riser or night owl?",
-    "Cook at home or eat out?",
-    "Travel solo or with others?",
-    "Call or text?",
-    "Improvise or plan ahead?",
-    "Know everything about the past or the future?",
-    "Work from home or in an office?",
-    "Read minds or see the future?",
-    "Many small joys or one big one?",
-    "Be famous or be rich?",
-    "Sweet or salty?",
-    "Movie at home or at the cinema?",
-    "Live long and simply or bright and briefly?",
-    "Active vacation or beach?",
-    "Always tell the truth or sometimes stay quiet?",
-    "Spend the evening together or with friends?",
-    "Spontaneity or everything planned?",
-]
-
-KNOW_ME_BETTER_EN = [
-    "What did you dream of as a child? Did it come true?",
-    "What moment in your life do you consider the happiest?",
-    "What makes you truly happy right now?",
-    "If you could spend one day anywhere in the world — where?",
-    "What habit have you been wanting to develop for a long time?",
-    "What irritates you most about people?",
-    "What achievement are you most proud of?",
-    "If money didn't matter, what would you do with your time?",
-    "What is your biggest fear?",
-    "What do you value most in close relationships?",
-    "What book or movie would you recommend to me right now?",
-    "What inspires you?",
-    "If you could change one decision in your life — which one?",
-    "Who do you admire most and why?",
-    "What does success mean to you?",
-    "How do you handle stress?",
-    "What will you never get tired of doing?",
-    "What place in the world feels most magical to you?",
-    "What do you regret most?",
-    "What is hardest for you to say out loud?",
-    "What period of your life do you remember with the most warmth?",
-    "What do you do when you feel very sad?",
-    "If you could master any skill instantly — what would you choose?",
-    "What do you need to feel safe?",
-    "What advice would you give your 16-year-old self?",
-    "What surprises you about people?",
-    "What superpower would you want to have?",
-    "What are you looking for in a relationship?",
-    "How do you know when you can trust someone?",
-    "What would you want people to say about you in 20 years?",
-]
-
 _SEED_CATEGORIES = [
-    ("🎭 То или Это", THIS_OR_THAT_RU, "ru"),
-    ("💬 Узнай меня лучше", KNOW_ME_BETTER_RU, "ru"),
-    ("🎭 This or That", THIS_OR_THAT_EN, "en"),
-    ("💬 Get to Know Me", KNOW_ME_BETTER_EN, "en"),
+    ("🎭 То или Это", THIS_OR_THAT),
+    ("💬 Узнай меня лучше", KNOW_ME_BETTER),
 ]
 
 
 async def seed_db() -> None:
-    for name, questions, lang in _SEED_CATEGORIES:
+    for name, questions in _SEED_CATEGORIES:
         if not await queries.category_exists(name, chat_id=None):
-            cat_id = await queries.create_category(name, chat_id=None, is_custom=False, language=lang)
+            cat_id = await queries.create_category(name, chat_id=None, is_custom=False)
             await queries.bulk_insert_questions(cat_id, questions)

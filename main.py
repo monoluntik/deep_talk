@@ -12,7 +12,6 @@ from bot.handlers.menu import router as menu_router
 from bot.handlers.navigation import router as nav_router
 from bot.handlers.generate import router as gen_router
 from bot.handlers.donate import router as donate_router
-from bot.handlers.language import router as lang_router
 from data.seed import seed_db
 
 
@@ -32,7 +31,6 @@ async def main() -> None:
     dp.include_router(nav_router)
     dp.include_router(gen_router)
     dp.include_router(donate_router)
-    dp.include_router(lang_router)
 
     await init_db()
     await seed_db()
