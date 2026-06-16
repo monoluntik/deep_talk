@@ -1,13 +1,16 @@
+from __future__ import annotations
+
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from bot.i18n import t
 
 
-def nav_keyboard() -> InlineKeyboardMarkup:
+def nav_keyboard(lang: str = "ru") -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[[
-        InlineKeyboardButton(text="⏭ Следующий вопрос", callback_data="nav:next"),
+        InlineKeyboardButton(text=t(lang, "btn_next"), callback_data="nav:next"),
     ]])
 
 
-def category_keyboard(categories: list[dict]) -> InlineKeyboardMarkup:
+def category_keyboard(categories: list[dict], lang: str = "ru") -> InlineKeyboardMarkup:
     rows = []
     for cat in categories:
         row = [InlineKeyboardButton(text=cat["name"], callback_data=f"cat:{cat['id']}")]
@@ -17,33 +20,38 @@ def category_keyboard(categories: list[dict]) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
-def confirm_delete_keyboard(category_id: int) -> InlineKeyboardMarkup:
+def confirm_delete_keyboard(category_id: int, lang: str = "ru") -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[[
-        InlineKeyboardButton(text="✅ Удалить", callback_data=f"cat:delete:confirm:{category_id}"),
-        InlineKeyboardButton(text="❌ Отмена", callback_data="cat:delete:cancel"),
+        InlineKeyboardButton(text=t(lang, "btn_delete_confirm"), callback_data=f"cat:delete:confirm:{category_id}"),
+        InlineKeyboardButton(text=t(lang, "btn_cancel"), callback_data="cat:delete:cancel"),
     ]])
 
 
-def exhausted_keyboard(category_id: int) -> InlineKeyboardMarkup:
+def exhausted_keyboard(category_id: int, lang: str = "ru") -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="➕ Дополнить вопросами", callback_data=f"cat:extend:{category_id}")],
-        [InlineKeyboardButton(text="📂 Сменить категорию", callback_data="menu:show")],
+        [InlineKeyboardButton(text=t(lang, "btn_extend"), callback_data=f"cat:extend:{category_id}")],
+        [InlineKeyboardButton(text=t(lang, "btn_change_cat"), callback_data="menu:show")],
     ])
 
 
 def donate_keyboard() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text="⭐ 1", callback_data="donate:1"),
-            InlineKeyboardButton(text="⭐ 5", callback_data="donate:5"),
-            InlineKeyboardButton(text="⭐ 10", callback_data="donate:10"),
-            InlineKeyboardButton(text="⭐ 25", callback_data="donate:25"),
-        ],
-    ])
-
-
-def switch_keyboard(category_id: int) -> InlineKeyboardMarkup:
     return InlineKeyboardMarkup(inline_keyboard=[[
-        InlineKeyboardButton(text="✅ Переключиться", callback_data=f"cat:{category_id}"),
-        InlineKeyboardButton(text="❌ Остаться", callback_data="gen:stay"),
+        InlineKeyboardButton(text="⭐ 1", callback_data="donate:1"),
+        InlineKeyboardButton(text="⭐ 5", callback_data="donate:5"),
+        InlineKeyboardButton(text="⭐ 10", callback_data="donate:10"),
+        InlineKeyboardButton(text="⭐ 25", callback_data="donate:25"),
+    ]])
+
+
+def switch_keyboard(category_id: int, lang: str = "ru") -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[[
+        InlineKeyboardButton(text=t(lang, "btn_switch"), callback_data=f"cat:{category_id}"),
+        InlineKeyboardButton(text=t(lang, "btn_stay"), callback_data="gen:stay"),
+    ]])
+
+
+def language_keyboard() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[[
+        InlineKeyboardButton(text="🇷🇺 Русский", callback_data="lang:ru"),
+        InlineKeyboardButton(text="🇬🇧 English", callback_data="lang:en"),
     ]])

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional
 import aiosqlite
 from bot.config import DATABASE_PATH
@@ -5,15 +7,15 @@ from bot.config import DATABASE_PATH
 
 # ── categories ───────────────────────────────────────────────────────────────
 
-async def get_categories(chat_id: int) -> list[dict]:
-    """Return global base categories + custom categories created by this chat."""
+async def get_categories(chat_id: int, lang: str = "ru") -> list[dict]:
+    """Return global base categories for this language + custom categories for this chat."""
     async with aiosqlite.connect(DATABASE_PATH) as db:
         db.row_factory = aiosqlite.Row
         async with db.execute(
             "SELECT id, name, is_custom FROM categories "
-            "WHERE is_custom = 0 OR chat_id = ? "
+            "WHERE (is_custom = 0 AND language = ?) OR (is_custom = 1 AND chat_id = ?) "
             "ORDER BY is_custom ASC, id ASC",
-            (chat_id,),
+            (lang, chat_id),
         ) as cur:
             return [dict(r) for r in await cur.fetchall()]
 
@@ -44,7 +46,6 @@ async def category_exists(name: str, chat_id: Optional[int]) -> bool:
 
 
 async def delete_category(category_id: int) -> None:
-    """Delete a custom category and its questions (CASCADE). Also clears chat_state references."""
     async with aiosqlite.connect(DATABASE_PATH) as db:
         await db.execute(
             "UPDATE chat_state SET current_category_id = NULL WHERE current_category_id = ?",
@@ -54,11 +55,16 @@ async def delete_category(category_id: int) -> None:
         await db.commit()
 
 
-async def create_category(name: str, chat_id: Optional[int] = None, is_custom: bool = True) -> int:
+async def create_category(
+    name: str,
+    chat_id: Optional[int] = None,
+    is_custom: bool = True,
+    language: str = "ru",
+) -> int:
     async with aiosqlite.connect(DATABASE_PATH) as db:
         async with db.execute(
-            "INSERT INTO categories (name, is_custom, chat_id) VALUES (?, ?, ?)",
-            (name, 1 if is_custom else 0, chat_id),
+            "INSERT INTO categories (name, is_custom, chat_id, language) VALUES (?, ?, ?, ?)",
+            (name, 1 if is_custom else 0, chat_id, language),
         ) as cur:
             category_id = cur.lastrowid
         await db.commit()
@@ -80,7 +86,8 @@ async def get_chat_state(chat_id: int) -> dict:
     async with aiosqlite.connect(DATABASE_PATH) as db:
         db.row_factory = aiosqlite.Row
         async with db.execute(
-            "SELECT current_category_id, history_cursor, question_message_id, awaiting_generate "
+            "SELECT current_category_id, history_cursor, question_message_id, "
+            "awaiting_generate, language "
             "FROM chat_state WHERE chat_id = ?",
             (chat_id,),
         ) as cur:
@@ -90,6 +97,7 @@ async def get_chat_state(chat_id: int) -> dict:
         "history_cursor": -1,
         "question_message_id": None,
         "awaiting_generate": 0,
+        "language": "ru",
     }
 
 
@@ -98,6 +106,21 @@ async def _ensure_state(db: aiosqlite.Connection, chat_id: int) -> None:
         "INSERT OR IGNORE INTO chat_state (chat_id, history_cursor) VALUES (?, -1)",
         (chat_id,),
     )
+
+
+async def get_language(chat_id: int) -> str:
+    state = await get_chat_state(chat_id)
+    return state.get("language") or "ru"
+
+
+async def set_language(chat_id: int, lang: str) -> None:
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await _ensure_state(db, chat_id)
+        await db.execute(
+            "UPDATE chat_state SET language = ? WHERE chat_id = ?",
+            (lang, chat_id),
+        )
+        await db.commit()
 
 
 async def set_awaiting_generate(chat_id: int, value: bool) -> None:

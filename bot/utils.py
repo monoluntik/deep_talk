@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from typing import Optional
 from aiogram import Bot
 from bot.keyboards import nav_keyboard
@@ -13,8 +15,8 @@ async def send_question(
     category_name: str,
     question_text: str,
     old_message_id: Optional[int] = None,
+    lang: str = "ru",
 ) -> int:
-    # Remove buttons from the previous question message
     if old_message_id:
         try:
             await bot.edit_message_reply_markup(
@@ -28,6 +30,6 @@ async def send_question(
     msg = await bot.send_message(
         chat_id=chat_id,
         text=format_question(category_name, question_text),
-        reply_markup=nav_keyboard(),
+        reply_markup=nav_keyboard(lang),
     )
     return msg.message_id
