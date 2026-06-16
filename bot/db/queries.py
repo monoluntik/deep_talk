@@ -123,6 +123,18 @@ async def set_language(chat_id: int, lang: str) -> None:
         await db.commit()
 
 
+async def reset_category(chat_id: int) -> None:
+    """Clear active category and question message when switching language."""
+    async with aiosqlite.connect(DATABASE_PATH) as db:
+        await _ensure_state(db, chat_id)
+        await db.execute(
+            "UPDATE chat_state SET current_category_id = NULL, question_message_id = NULL "
+            "WHERE chat_id = ?",
+            (chat_id,),
+        )
+        await db.commit()
+
+
 async def set_awaiting_generate(chat_id: int, value: bool) -> None:
     async with aiosqlite.connect(DATABASE_PATH) as db:
         await _ensure_state(db, chat_id)

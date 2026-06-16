@@ -75,7 +75,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "donate_stars_one": "Star",
         "donate_stars_many": "Stars",
         "choose_language": "🌐 Выберите язык / Choose language:",
-        "language_set": "🇷🇺 Язык изменён на <b>русский</b>.",
+        "language_set": "🇷🇺 Язык изменён на <b>русский</b>. Выберите категорию:",
         # keyboard buttons
         "btn_next": "⏭ Следующий вопрос",
         "btn_delete_confirm": "✅ Удалить",
@@ -169,7 +169,7 @@ STRINGS: dict[str, dict[str, str]] = {
         "donate_stars_one": "Star",
         "donate_stars_many": "Stars",
         "choose_language": "🌐 Выберите язык / Choose language:",
-        "language_set": "🇬🇧 Language changed to <b>English</b>.",
+        "language_set": "🇬🇧 Language changed to <b>English</b>. Choose a category:",
         # keyboard buttons
         "btn_next": "⏭ Next question",
         "btn_delete_confirm": "✅ Delete",
