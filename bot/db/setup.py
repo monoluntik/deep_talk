@@ -11,8 +11,7 @@ async def init_db() -> None:
                 id        INTEGER PRIMARY KEY AUTOINCREMENT,
                 name      TEXT NOT NULL,
                 is_custom INTEGER DEFAULT 0,
-                chat_id   INTEGER,
-                language  TEXT DEFAULT 'ru'
+                chat_id   INTEGER
             );
 
             CREATE TABLE IF NOT EXISTS questions (
@@ -34,8 +33,7 @@ async def init_db() -> None:
                 current_category_id INTEGER REFERENCES categories(id),
                 history_cursor      INTEGER DEFAULT -1,
                 question_message_id INTEGER,
-                awaiting_generate   INTEGER DEFAULT 0,
-                language            TEXT DEFAULT 'ru'
+                awaiting_generate   INTEGER DEFAULT 0
             );
         """)
 
@@ -44,18 +42,12 @@ async def init_db() -> None:
             cat_cols = [row[1] for row in await cur.fetchall()]
         if "chat_id" not in cat_cols:
             await db.execute("ALTER TABLE categories ADD COLUMN chat_id INTEGER")
-        if "language" not in cat_cols:
-            await db.execute("ALTER TABLE categories ADD COLUMN language TEXT DEFAULT 'ru'")
 
         async with db.execute("PRAGMA table_info(chat_state)") as cur:
             state_cols = [row[1] for row in await cur.fetchall()]
         if "awaiting_generate" not in state_cols:
             await db.execute(
                 "ALTER TABLE chat_state ADD COLUMN awaiting_generate INTEGER DEFAULT 0"
-            )
-        if "language" not in state_cols:
-            await db.execute(
-                "ALTER TABLE chat_state ADD COLUMN language TEXT DEFAULT 'ru'"
             )
 
         await db.commit()
