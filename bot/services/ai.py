@@ -1,20 +1,16 @@
 import json
 import re
-from openai import AsyncOpenAI
-from bot.config import OPENROUTER_API_KEY
+import anthropic
+from bot.config import ANTHROPIC_API_KEY
 
-_client = AsyncOpenAI(
-    api_key=OPENROUTER_API_KEY,
-    base_url="https://openrouter.ai/api/v1",
-)
-
-_MODEL = "openrouter/free"
+_client = anthropic.AsyncAnthropic(api_key=ANTHROPIC_API_KEY)
+_MODEL = "claude-haiku-4-5-20251001"
 
 
 async def generate_category(description: str, count: int = 20) -> tuple[str, list[str]]:
-    response = await _client.chat.completions.create(
+    message = await _client.messages.create(
         model=_MODEL,
-        max_tokens=8192,
+        max_tokens=4096,
         messages=[{
             "role": "user",
             "content": (
@@ -30,7 +26,7 @@ async def generate_category(description: str, count: int = 20) -> tuple[str, lis
         }],
     )
 
-    text = response.choices[0].message.content.strip()
+    text = message.content[0].text.strip()
     match = re.search(r"\{[\s\S]*\}", text)
     if not match:
         raise ValueError("Модель не вернула корректный JSON")
